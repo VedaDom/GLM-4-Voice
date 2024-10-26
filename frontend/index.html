@@ -10,6 +10,17 @@
             --primary-color: #2563eb;
             --background-color: #f3f4f6;
             --text-color: #1f2937;
+            --error-color: #dc2626;
+            --success-color: #059669;
+            --border-color: #e5e7eb;
+            --hover-color: #1d4ed8;
+            --disabled-color: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
@@ -26,7 +37,7 @@
             margin: 0 auto;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             overflow: hidden;
         }
 
@@ -35,6 +46,13 @@
             color: white;
             padding: 20px;
             text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 600;
         }
 
         .chat-container {
@@ -44,6 +62,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+            scroll-behavior: smooth;
         }
 
         .message {
@@ -51,35 +70,63 @@
             padding: 12px 16px;
             border-radius: 12px;
             margin: 4px 0;
+            word-wrap: break-word;
+            position: relative;
+            animation: messageAppear 0.3s ease-out;
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .user-message {
             background-color: #e5e7eb;
             align-self: flex-end;
             margin-left: 20%;
+            border-bottom-right-radius: 4px;
         }
 
         .assistant-message {
             background-color: #dbeafe;
             align-self: flex-start;
             margin-right: 20%;
+            border-bottom-left-radius: 4px;
         }
 
         .input-container {
             padding: 20px;
             background-color: white;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid var(--border-color);
             display: flex;
             gap: 12px;
             align-items: center;
+            position: relative;
         }
 
         .text-input {
             flex: 1;
             padding: 12px;
-            border: 1px solid #d1d5db;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 16px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            resize: none;
+            min-height: 48px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
         .button {
@@ -87,17 +134,48 @@
             border: none;
             border-radius: 6px;
             font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button:disabled {
+            background-color: var(--disabled-color);
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
         .record-button {
-            background-color: #dc2626;
+            background-color: var(--error-color);
             color: white;
+        }
+
+        .record-button:hover:not(:disabled) {
+            background-color: #b91c1c;
         }
 
         .record-button.recording {
             background-color: #991b1b;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
         }
 
         .send-button {
@@ -105,59 +183,172 @@
             color: white;
         }
 
-        .button:hover {
-            opacity: 0.9;
+        .send-button:hover:not(:disabled) {
+            background-color: var(--hover-color);
         }
 
-        .button:active {
-            transform: translateY(1px);
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background-color: #f8fafc;
+            border-top: 1px solid var(--border-color);
         }
 
-        .status {
-            padding: 8px;
+        .volume-control label {
+            font-size: 14px;
+            color: var(--text-color);
+            min-width: 60px;
+        }
+
+        .volume-control input[type="range"] {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            background: #d1d5db;
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .volume-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid white;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .volume-control input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .volume-value {
+            min-width: 40px;
             text-align: center;
             font-size: 14px;
-            color: #6b7280;
-        }
-
-        .audio-player {
-            width: 100%;
-            margin: 8px 0;
+            color: var(--text-color);
         }
 
         .status {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
+            padding: 12px;
             text-align: center;
+            font-size: 14px;
+            color: var(--text-color);
+            background-color: #f8fafc;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .status.error {
             background-color: #fee2e2;
-            color: #dc2626;
+            color: var(--error-color);
         }
 
-        .disconnected {
-            opacity: 0.5;
-            pointer-events: none;
+        .status.success {
+            background-color: #dcfce7;
+            color: var(--success-color);
         }
 
-        .debug-panel {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f3f4f6;
-            border-radius: 4px;
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
         }
 
-        .debug-log {
-            height: 100px;
-            overflow-y: auto;
-            font-family: monospace;
-            background-color: #1f2937;
-            color: #e5e7eb;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 4px;
+        .status-indicator.connected {
+            background-color: var(--success-color);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+        }
+
+        .status-indicator.disconnected {
+            background-color: var(--error-color);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s infinite linear;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .audio-wave {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 20px;
+        }
+
+        .audio-wave.recording .bar {
+            width: 3px;
+            height: 100%;
+            background-color: white;
+            border-radius: 3px;
+            animation: wave 1s infinite ease-in-out;
+        }
+
+        .audio-wave.recording .bar:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .audio-wave.recording .bar:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .audio-wave.recording .bar:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes wave {
+            0%, 100% {
+                height: 8px;
+            }
+            50% {
+                height: 20px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                border-radius: 8px;
+            }
+
+            .input-container {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .message {
+                max-width: 90%;
+            }
         }
     </style>
 </head>
@@ -172,21 +363,35 @@
             <!-- Chat messages will be inserted here -->
         </div>
 
+        <div class="volume-control">
+            <label for="volumeControl">Volume:</label>
+            <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="1">
+            <span id="volumeValue" class="volume-value">100%</span>
+        </div>
+
         <div class="input-container">
-            <button id="recordButton" class="button record-button">
-                Start Recording
+            <button id="recordButton" class="button record-button" disabled>
+                <span class="audio-wave">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </span>
+                <span>Start Recording</span>
             </button>
-            <input type="text" id="textInput" class="text-input" placeholder="Type your message...">
-            <button id="sendButton" class="button send-button">
-                Send
+            <textarea id="textInput" class="text-input" placeholder="Type your message..." rows="1" disabled></textarea>
+            <button id="sendButton" class="button send-button" disabled>
+                <span>Send</span>
             </button>
         </div>
 
         <div id="status" class="status">
-            Not connected
+            <span class="status-indicator disconnected"></span>
+            <span>Not connected</span>
         </div>
     </div>
 
+    <script src="streamProcessor.js"></script>
     <script src="voice-chat.js"></script>
 </body>
 

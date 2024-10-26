@@ -1,0 +1,40 @@
+2024-10-26 19:25:02,406 - __main__ - INFO - Initializing models...
+2024-10-26 19:25:07,700 - root - INFO - input frame rate=12.5
+2024-10-26 19:25:09,697 - __main__ - INFO - Models initialized successfully
+2024-10-26 19:25:20,935 - __main__ - INFO - New client connected (ID: 74402bdf-5740-45c6-96da-28d931e16c35). Total connections: 1
+2024-10-26 19:25:30,991 - __main__ - ERROR - Error in process_audio_chunk: torch.cat(): expected a non-empty list of Tensors
+2024-10-26 19:25:30,991 - __main__ - ERROR - Error processing audio chunk: torch.cat(): expected a non-empty list of Tensors
+2024-10-26 19:26:03,878 - __main__ - ERROR - Error in process_audio_chunk: torch.cat(): expected a non-empty list of Tensors
+2024-10-26 19:26:03,878 - __main__ - ERROR - Error processing audio chunk: torch.cat(): expected a non-empty list of Tensors
+2024-10-26 19:26:45,698 - __main__ - INFO - Client disconnected (ID: 74402bdf-5740-45c6-96da-28d931e16c35). Remaining connections: 0
+2024-10-26 19:26:45,852 - __main__ - INFO - Server shutdown completed successfully
+2024-10-26 19:34:12,756 - __main__ - INFO - Initializing models...
+2024-10-26 19:34:17,971 - root - INFO - input frame rate=12.5
+2024-10-26 19:34:20,130 - __main__ - INFO - Models initialized successfully
+2024-10-26 19:34:26,913 - __main__ - INFO - New client connected (ID: 9493ae1b-4858-46fb-86bc-55ec6839e31a). Total connections: 1
+2024-10-26 19:34:37,445 - __main__ - ERROR - Error applying crossfade: Tensors must have same number of dimensions: got 1 and 2
+2024-10-26 19:34:39,393 - __main__ - ERROR - Error applying crossfade: Tensors must have same number of dimensions: got 1 and 2
+2024-10-26 19:34:41,760 - __main__ - ERROR - Error applying crossfade: Tensors must have same number of dimensions: got 1 and 2
+2024-10-26 19:34:43,020 - __main__ - ERROR - Error applying crossfade: Tensors must have same number of dimensions: got 1 and 2
+2024-10-26 19:34:44,181 - __main__ - ERROR - Error applying crossfade: Tensors must have same number of dimensions: got 1 and 2
+2024-10-26 19:34:45,232 - __main__ - ERROR - Error in token2wav conversion: operands could not be broadcast together with shapes (1,80,13) (34,) 
+2024-10-26 19:34:45,232 - __main__ - ERROR - Error in process_audio_chunk: operands could not be broadcast together with shapes (1,80,13) (34,) 
+2024-10-26 19:34:45,232 - __main__ - ERROR - Audio tokens: [12072, 12072]
+2024-10-26 19:34:45,232 - __main__ - ERROR - Current state - tts_speechs: 6, tts_mels: 6
+2024-10-26 19:34:45,232 - __main__ - ERROR - Error processing audio chunk: operands could not be broadcast together with shapes (1,80,13) (34,) 
+2024-10-26 19:36:48,155 - __main__ - INFO - Client disconnected (ID: 9493ae1b-4858-46fb-86bc-55ec6839e31a). Remaining connections: 0
+2024-10-26 19:36:48,291 - __main__ - INFO - Server shutdown completed successfully
+2024-10-26 19:38:28,142 - __main__ - INFO - Initializing models...
+2024-10-26 19:38:33,415 - root - INFO - input frame rate=12.5
+2024-10-26 19:38:35,507 - __main__ - INFO - Models initialized successfully
+2024-10-26 19:38:43,553 - __main__ - INFO - New client connected (ID: bc29a7ba-dc6b-432c-9179-e5533c0f6736). Total connections: 1
+2024-10-26 19:39:05,886 - __main__ - ERROR - Error in token2wav conversion: operands could not be broadcast together with shapes (1,80,27) (34,) 
+2024-10-26 19:39:05,886 - __main__ - ERROR - Error in process_audio_chunk: operands could not be broadcast together with shapes (1,80,27) (34,) 
+2024-10-26 19:39:05,886 - __main__ - ERROR - Audio tokens: [7661, 12072, 12072, 12072]
+2024-10-26 19:39:05,886 - __main__ - ERROR - Current state - tts_speechs: 6, tts_mels: 6
+2024-10-26 19:39:05,886 - __main__ - ERROR - Error processing audio chunk: operands could not be broadcast together with shapes (1,80,27) (34,) 
+2024-10-26 19:45:33,340 - main - INFO - Initializing models...
+2024-10-26 19:45:38,947 - root - INFO - input frame rate=12.5
+2024-10-26 19:45:43,958 - main - INFO - Models initialized successfully
+2024-10-26 19:45:43,959 - main - ERROR - Error in cleanup_temp_files: name 'time' is not defined
+2024-10-26 19:46:52,574 - main - INFO - Server shutdown completed successfully

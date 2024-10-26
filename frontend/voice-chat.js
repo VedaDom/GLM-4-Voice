@@ -1,4 +1,3 @@
-// voice-chat.js
 class GLMVoiceChat {
     constructor(serverUrl) {
         this.serverUrl = serverUrl;
@@ -13,6 +12,10 @@ class GLMVoiceChat {
         this.maxReconnectAttempts = 5;
         this.reconnectDelay = 1000;
         this.heartbeatInterval = null;
+        this.audioQueue = [];
+        this.isPlaying = false;
+        this.gainNode = null;
+        this.audioWorkletNode = null;
 
         // UI Elements
         this.statusElement = document.getElementById('status');
@@ -26,6 +29,7 @@ class GLMVoiceChat {
         this.handleRecordButton = this.handleRecordButton.bind(this);
         this.handleSendButton = this.handleSendButton.bind(this);
         this.updateUIState = this.updateUIState.bind(this);
+        this.processAudioQueue = this.processAudioQueue.bind(this);
     }
 
     updateStatus(message, isError = false) {
@@ -42,9 +46,22 @@ class GLMVoiceChat {
         }
 
         try {
-            // Create AudioContext but don't resume it yet
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            console.log('Audio context created, waiting for user interaction');
+            this.audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                sampleRate: 22050,
+                latencyHint: 'interactive'
+            });
+
+            // Create gain node for volume control
+            this.gainNode = this.audioContext.createGain();
+            this.gainNode.gain.value = 1.0;
+            this.gainNode.connect(this.audioContext.destination);
+
+            // Initialize audio worklet for better streaming
+            await this.audioContext.audioWorklet.addModule('streamProcessor.js');
+            this.audioWorkletNode = new AudioWorkletNode(this.audioContext, 'stream-processor');
+            this.audioWorkletNode.connect(this.gainNode);
+
+            console.log('Audio context created successfully');
         } catch (error) {
             console.error('Failed to create audio context:', error);
             this.updateStatus('Failed to initialize audio', true);
@@ -140,7 +157,13 @@ class GLMVoiceChat {
     async handleServerMessage(response) {
         switch (response.type) {
             case 'audio_chunk':
-                await this.playAudioChunk(response.data, response.sample_rate);
+                this.audioQueue.push({
+                    data: response.data,
+                    sampleRate: response.sample_rate
+                });
+                if (!this.isPlaying) {
+                    await this.processAudioQueue();
+                }
                 break;
             
             case 'complete':
@@ -160,18 +183,57 @@ class GLMVoiceChat {
         }
     }
 
+    async processAudioQueue() {
+        if (this.audioQueue.length === 0) {
+            this.isPlaying = false;
+            return;
+        }
+
+        this.isPlaying = true;
+
+        try {
+            const chunk = this.audioQueue.shift();
+            await this.playAudioChunk(chunk.data, chunk.sampleRate);
+            
+            // Process next chunk with small delay
+            setTimeout(() => this.processAudioQueue(), 50);
+        } catch (error) {
+            console.error('Error processing audio queue:', error);
+            this.isPlaying = false;
+        }
+    }
+
     async playAudioChunk(audioData, sampleRate) {
         if (!this.audioInitialized) {
             await this.resumeAudioContext();
         }
 
-        const audioBuffer = this.audioContext.createBuffer(1, audioData.length, sampleRate);
-        audioBuffer.getChannelData(0).set(new Float32Array(audioData));
+        try {
+            const audioBuffer = this.audioContext.createBuffer(1, audioData.length, sampleRate);
+            audioBuffer.getChannelData(0).set(new Float32Array(audioData));
 
-        const source = this.audioContext.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(this.audioContext.destination);
-        source.start(0);
+            const source = this.audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            
+            // Apply smooth ramping
+            const rampDuration = 0.05;
+            const currentTime = this.audioContext.currentTime;
+            
+            source.connect(this.audioWorkletNode);
+            
+            if (this.audioContext.state === 'suspended') {
+                await this.audioContext.resume();
+            }
+            
+            source.start(0);
+            
+            return new Promise(resolve => {
+                source.onended = resolve;
+            });
+        } catch (error) {
+            console.error('Error playing audio chunk:', error);
+            this.updateStatus('Audio playback error', true);
+        }
     }
 
     updateChatHistory(text, history) {
@@ -199,8 +261,18 @@ class GLMVoiceChat {
         try {
             await this.resumeAudioContext();
 
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            this.mediaRecorder = new MediaRecorder(stream);
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true
+                }
+            });
+            
+            this.mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'audio/webm;codecs=opus'
+            });
+            
             this.audioChunks = [];
 
             this.mediaRecorder.ondataavailable = (event) => {
@@ -288,13 +360,28 @@ class GLMVoiceChat {
                 }
             });
         }
+
+        // Add volume control
+        const volumeControl = document.getElementById('volumeControl');
+        if (volumeControl && this.gainNode) {
+            volumeControl.addEventListener('input', (e) => {
+                const value = parseFloat(e.target.value);
+                this.gainNode.gain.setValueAtTime(value, this.audioContext.currentTime);
+            });
+        }
     }
 
     handleRecordButton() {
         if (!this.isRecording) {
             this.startRecording();
+            if (this.recordButton) {
+                this.recordButton.classList.add('recording');
+            }
         } else {
             this.stopRecording();
+            if (this.recordButton) {
+                this.recordButton.classList.remove('recording');
+            }
         }
     }
 
@@ -316,6 +403,7 @@ class GLMVoiceChat {
         elements.forEach(element => {
             if (element) {
                 element.disabled = !this.isConnected;
+                element.classList.toggle('disabled', !this.isConnected);
             }
         });
     }
